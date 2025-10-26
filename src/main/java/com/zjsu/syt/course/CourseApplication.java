@@ -11,14 +11,14 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.core.env.Environment;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;  // 修改这里：使用jakarta包
 import java.time.LocalTime;
 
 @SpringBootApplication
 public class CourseApplication {
 
 	@Autowired
-	private CourseService courseService;
+	private CourseService courseService;  // 修正字段名：去掉多余的's'
 
 	@Autowired
 	private StudentService studentService;
@@ -59,6 +59,7 @@ public class CourseApplication {
 
 		} catch (Exception e) {
 			System.out.println("初始化测试数据时发生错误: " + e.getMessage());
+			e.printStackTrace();  // 添加详细错误信息
 		}
 	}
 
