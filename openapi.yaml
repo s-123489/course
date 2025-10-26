@@ -1,0 +1,196 @@
+openapi: 3.0.3
+info:
+  title: 校园选课系统 API
+  description: 基于Spring Boot的校园选课系统RESTful API
+  version: 1.0.0
+  contact:
+    name: syt
+    email: your-email@example.com
+
+servers:
+  - url: http://localhost:8080
+    description: 本地开发环境
+
+paths:
+  /api/courses:
+    get:
+      summary: 查询所有课程
+      tags:
+        - 课程管理
+      responses:
+        '200':
+          description: 成功返回课程列表
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+    post:
+      summary: 创建课程
+      tags:
+        - 课程管理
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Course'
+      responses:
+        '201':
+          description: 课程创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /api/courses/{id}:
+    get:
+      summary: 查询单个课程
+      tags:
+        - 课程管理
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功返回课程信息
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '404':
+          description: 课程不存在
+
+  /api/students:
+    get:
+      summary: 查询所有学生
+      tags:
+        - 学生管理
+      responses:
+        '200':
+          description: 成功返回学生列表
+    post:
+      summary: 创建学生
+      tags:
+        - 学生管理
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Student'
+      responses:
+        '201':
+          description: 学生创建成功
+
+  /api/enrollments:
+    get:
+      summary: 查询所有选课记录
+      tags:
+        - 选课管理
+      responses:
+        '200':
+          description: 成功返回选课记录
+    post:
+      summary: 学生选课
+      tags:
+        - 选课管理
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                courseId:
+                  type: string
+                  example: "course-uuid"
+                studentId:
+                  type: string
+                  example: "S2024001"
+      responses:
+        '201':
+          description: 选课成功
+        '400':
+          description: 选课失败（容量已满或重复选课）
+
+components:
+  schemas:
+    ApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: "Success"
+        data:
+          type: object
+
+    Course:
+      type: object
+      properties:
+        code:
+          type: string
+          example: "CS101"
+        title:
+          type: string
+          example: "计算机科学导论"
+        instructor:
+          $ref: '#/components/schemas/Instructor'
+        schedule:
+          $ref: '#/components/schemas/ScheduleSlot'
+        capacity:
+          type: integer
+          example: 60
+
+    Student:
+      type: object
+      properties:
+        studentId:
+          type: string
+          example: "S2024001"
+        name:
+          type: string
+          example: "张三"
+        major:
+          type: string
+          example: "计算机科学与技术"
+        grade:
+          type: integer
+          example: 2024
+        email:
+          type: string
+          example: "zhangsan@example.edu.cn"
+
+    Instructor:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "T001"
+        name:
+          type: string
+          example: "张教授"
+        email:
+          type: string
+          example: "zhang@example.edu.cn"
+
+    ScheduleSlot:
+      type: object
+      properties:
+        dayOfWeek:
+          type: string
+          example: "MONDAY"
+        startTime:
+          type: string
+          example: "08:00"
+        endTime:
+          type: string
+          example: "10:00"
+        expectedAttendance:
+          type: integer
+          example: 50

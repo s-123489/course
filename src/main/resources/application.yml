@@ -1,0 +1,17 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+spring:
+  application:
+    name: course-management-system
+  web:
+    resources:
+      static-locations: classpath:/static/
+
+logging:
+  level:
+    com.zjsu.syt.course: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
