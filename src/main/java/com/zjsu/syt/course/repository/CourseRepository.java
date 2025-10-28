@@ -1,42 +1,26 @@
 package com.zjsu.syt.course.repository;
 
 import com.zjsu.syt.course.model.Course;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.List;
+import java.util.Optional;
 
 @Repository
-public class CourseRepository {
-    private final Map<String, Course> courses = new ConcurrentHashMap<>();
+public interface CourseRepository extends JpaRepository<Course, String> {
 
-    public List<Course> findAll() {
-        return new ArrayList<>(courses.values());
-    }
+    Optional<Course> findByCode(String code);
 
-    public Optional<Course> findById(String id) {
-        return Optional.ofNullable(courses.get(id));
-    }
+    List<Course> findByInstructorId(String instructorId);
 
-    public Optional<Course> findByCode(String code) {
-        return courses.values().stream()
-                .filter(course -> course.getCode().equals(code))
-                .findFirst();
-    }
+    @Query("SELECT c FROM Course c WHERE c.enrolled < c.capacity")
+    List<Course> findAvailableCourses();
 
-    public Course save(Course course) {
-        if (course.getId() == null) {
-            course.setId(UUID.randomUUID().toString());
-        }
-        courses.put(course.getId(), course);
-        return course;
-    }
+    @Query("SELECT c FROM Course c WHERE c.title LIKE %:keyword%")
+    List<Course> findByTitleContaining(@Param("keyword") String keyword);
 
-    public void deleteById(String id) {
-        courses.remove(id);
-    }
-
-    public boolean existsById(String id) {
-        return courses.containsKey(id);
-    }
+    boolean existsByCode(String code);
 }

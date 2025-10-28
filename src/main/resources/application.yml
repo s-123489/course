@@ -1,17 +1,23 @@
+spring:
+  profiles:
+    active: dev
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+    show-sql: false
+  datasource:
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+
 server:
   port: 8080
-  servlet:
-    context-path: /
-
-spring:
-  application:
-    name: course-management-system
-  web:
-    resources:
-      static-locations: classpath:/static/
 
 logging:
   level:
-    com.zjsu.syt.course: INFO
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    com.zjsu.syt.course: DEBUG
+    org.hibernate.SQL: DEBUG

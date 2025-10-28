@@ -2,18 +2,18 @@ package com.zjsu.syt.course.service;
 
 import com.zjsu.syt.course.model.Course;
 import com.zjsu.syt.course.repository.CourseRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class CourseService {
 
-    @Autowired
-    private CourseRepository courseRepository;
+    private final CourseRepository courseRepository;
 
     public List<Course> getAllCourses() {
         return courseRepository.findAll();
@@ -24,16 +24,30 @@ public class CourseService {
                 .orElseThrow(() -> new NoSuchElementException("课程不存在: " + id));
     }
 
+    public Course getCourseByCode(String code) {
+        return courseRepository.findByCode(code)
+                .orElseThrow(() -> new NoSuchElementException("课程不存在: " + code));
+    }
+
+    @Transactional
     public Course createCourse(Course course) {
         // 检查课程代码是否已存在
-        courseRepository.findByCode(course.getCode())
-                .ifPresent(existingCourse -> {
-                    throw new IllegalArgumentException("课程代码已存在: " + course.getCode());
-                });
+        if (courseRepository.existsByCode(course.getCode())) {
+            throw new IllegalArgumentException("课程代码已存在: " + course.getCode());
+        }
+
+        // 设置默认值
+        if (course.getEnrolled() == null) {
+            course.setEnrolled(0);
+        }
+        if (course.getCapacity() == null) {
+            course.setCapacity(0);
+        }
 
         return courseRepository.save(course);
     }
 
+    @Transactional
     public Course updateCourse(String id, Course course) {
         Course existingCourse = getCourseById(id);
 
@@ -57,11 +71,22 @@ public class CourseService {
         return courseRepository.save(existingCourse);
     }
 
+    @Transactional
     public void deleteCourse(String id) {
-        if (!courseRepository.existsById(id)) {
-            throw new NoSuchElementException("课程不存在: " + id);
-        }
+        Course course = getCourseById(id);
+
+        // 检查是否有选课记录
+        // 这里需要在 EnrollmentService 中添加检查逻辑
+
         courseRepository.deleteById(id);
+    }
+
+    public List<Course> getAvailableCourses() {
+        return courseRepository.findAvailableCourses();
+    }
+
+    public List<Course> searchCoursesByTitle(String keyword) {
+        return courseRepository.findByTitleContaining(keyword);
     }
 
     public boolean existsById(String id) {

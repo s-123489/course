@@ -1,41 +1,49 @@
 package com.zjsu.syt.course.model;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import jakarta.persistence.*;
+import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDateTime;
+
+@Data
+@Entity
+@Table(name = "courses", uniqueConstraints = {
+        @UniqueConstraint(columnNames = "code")
+})
 public class Course {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
+
+    @Column(nullable = false, unique = true, length = 50)
     private String code;
+
+    @Column(nullable = false, length = 200)
     private String title;
+
+    @Embedded
     private Instructor instructor;
+
+    @Embedded
     private ScheduleSlot schedule;
-    private int capacity;
-    private AtomicInteger enrolled;
 
-    public Course() {
-        this.enrolled = new AtomicInteger(0);
+    @Column(nullable = false)
+    private Integer capacity = 0;
+
+    @Column(nullable = false)
+    private Integer enrolled = 0;
+
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    @PreUpdate
+    public void validateCapacity() {
+        if (enrolled > capacity) {
+            throw new IllegalArgumentException("已选人数不能超过容量");
+        }
     }
-
-    // Getters and Setters
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
-
-    public String getCode() { return code; }
-    public void setCode(String code) { this.code = code; }
-
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
-
-    public Instructor getInstructor() { return instructor; }
-    public void setInstructor(Instructor instructor) { this.instructor = instructor; }
-
-    public ScheduleSlot getSchedule() { return schedule; }
-    public void setSchedule(ScheduleSlot schedule) { this.schedule = schedule; }
-
-    public int getCapacity() { return capacity; }
-    public void setCapacity(int capacity) { this.capacity = capacity; }
-
-    public int getEnrolled() { return enrolled.get(); }
-    public void setEnrolled(int enrolled) { this.enrolled.set(enrolled); }
-    public int incrementEnrolled() { return enrolled.incrementAndGet(); }
-    public int decrementEnrolled() { return enrolled.decrementAndGet(); }
 }

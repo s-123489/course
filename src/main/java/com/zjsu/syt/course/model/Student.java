@@ -1,35 +1,39 @@
 package com.zjsu.syt.course.model;
 
+import jakarta.persistence.*;
+import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
+
 import java.time.LocalDateTime;
 
+@Data
+@Entity
+@Table(name = "students", uniqueConstraints = {
+        @UniqueConstraint(columnNames = "studentId"),
+        @UniqueConstraint(columnNames = "email")
+})
 public class Student {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
+
+    @Column(name = "student_id", nullable = false, unique = true, length = 20)
     private String studentId;
+
+    @Column(nullable = false, length = 100)
     private String name;
+
+    @Column(nullable = false, length = 100)
     private String major;
+
+    @Column(nullable = false)
     private Integer grade;
+
+    @Column(nullable = false, unique = true, length = 100)
     private String email;
+
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
-
-    // Getters and Setters
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
-
-    public String getStudentId() { return studentId; }
-    public void setStudentId(String studentId) { this.studentId = studentId; }
-
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-
-    public String getMajor() { return major; }
-    public void setMajor(String major) { this.major = major; }
-
-    public Integer getGrade() { return grade; }
-    public void setGrade(Integer grade) { this.grade = grade; }
-
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
-
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }
