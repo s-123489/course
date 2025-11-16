@@ -1,0 +1,53 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: coursehub-app
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/coursehub?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=coursehub_user
+      - SPRING_DATASOURCE_PASSWORD=coursehub_pass
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - coursehub-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  mysql:
+    image: mysql:8.0
+    container_name: coursehub-mysql
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root_password
+      - MYSQL_DATABASE=coursehub
+      - MYSQL_USER=coursehub_user
+      - MYSQL_PASSWORD=coursehub_pass
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - coursehub-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_password"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+networks:
+  coursehub-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
+    driver: local
